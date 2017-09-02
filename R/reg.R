@@ -10,8 +10,8 @@
 #' @param model regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details
 #' @param time Integer column indices  or name of survival time, used in cox regression, see \code{\link[survival]{coxph}} for more details
 # @param \dots Further arguments passed to regression model
-#' @param  cov_show A logical, whether to show covariates result in \code{\link{dataframe.reg}}, default FALSE
-#' @param  detail_show A logical, whether to show regression detail result in \code{\link{detail.reg}}, default FALSE
+#' @param  cov_show A logical, whether to create covariates result, default FALSE
+#' @param  detail_show A logical, whether to create each regression result, default FALSE
 #' @return The return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame
 #' @importFrom stats binomial confint glm lm
 #' @export
@@ -30,7 +30,12 @@
 
 reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model = NULL,
     time = NULL, cov_show=FALSE,detail_show=FALSE) {
-  stopifnot(is.data.frame(data))
+  if(!is.data.frame(data)) {
+    tryCatch( {
+      data<-as.data.frame(data,stringsAsFactors = FALSE)
+    }, error = function(e) stop("`data` is not a data.frame.", call. = FALSE)
+    )
+  }
   if (is.null(y) || length(y) != 1)
     stop("One dependent varibale should be provided or use reg_y for more than one dependent varibales!", call. = FALSE)
   if (!is.character(x)) x<-names(data)[x]
@@ -64,18 +69,25 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
     # if (any(c("data", "x", "y", "model") %in% names(arg)))
     #   warning("Please check the arguments: data, x, y, model!", call. = FALSE)
 
-    result_detail <- result_dataframe <- list()
+    if (isTRUE(detail_show)) {
+              result_detail <- result_dataframe <- vector(mode = "list", length = length(x))
+    } else {
+              result_dataframe <- vector(mode = "list", length = length(x))
+              result_detail<-NULL
+            }
+
+
 
     split_line <- paste0(rep.int("=",80),collapse = "")
 
 
-    for (i in x) {
-        group_x <- i
+    for (i in seq_along(x)) {
+        group_x <- x[i]
         dd<-data[,c(y,group_x,cov,time)]
 
         var_n<-sum(complete.cases(dd))
 
-        var_formula<-as.formula(paste0(y,"~",paste(c(i,cov),sep="",collapse = "+")))
+        var_formula<-as.formula(paste0(y,"~",paste(c(group_x,cov),sep="",collapse = "+")))
 
         if (model == "lm") {
             fit <- lm(var_formula,data=dd)
@@ -84,11 +96,11 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
             one <- cbind(group_x, summary(fit)$coefficients, coef,var_n)
             if (!isTRUE(cov_show)) {
               var_rowname<-rownames(one)
-              one<-one[grep(pattern=paste0("^",i),var_rowname),]
+              one<-one[grep(pattern=paste0("^",group_x),var_rowname),]
             }
-            result_dataframe <- rbind(result_dataframe, one)
+            result_dataframe[[i]] <- one
             if (isTRUE(detail_show)) {
-              result_detail[[group_x]] <- list(split_line = split_line, summary = summary(fit))
+              result_detail[[i]] <- list(split_line = split_line, summary = summary(fit))
             }
 
         } else if (model == "glm") {
@@ -104,11 +116,11 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
             one<-as.data.frame(one,stringsAsFactors = FALSE)
             if (!isTRUE(cov_show)) {
               var_rowname<-row.names(one)
-              one<-one[grep(pattern=paste0("^",i),var_rowname),]
+              one<-one[grep(pattern=paste0("^",group_x),var_rowname),]
             }
-            result_dataframe <- rbind(result_dataframe, one)
+            result_dataframe[[i]] <- one
             if (isTRUE(detail_show)) {
-              result_detail[[group_x]] <- list(split_line = split_line, summary = summary(fit),
+              result_detail[[i]] <- list(split_line = split_line, summary = summary(fit),
                                                `OR(95%CI)` = or)
             }
 
@@ -118,16 +130,23 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
           one <- cbind(group_x, summary(fit)$coefficients, exp(confint(fit)),var_n)
           if (!isTRUE(cov_show)) {
             var_rowname<-rownames(one)
-            one<-one[grep(pattern=paste0("^",i),var_rowname),]
+            one<-one[grep(pattern=paste0("^",group_x),var_rowname),]
           }
-          result_dataframe <- rbind(result_dataframe, one)
+          result_dataframe[[i]] <- one
           if (isTRUE(detail_show)) {
-            result_detail[[group_x]] <- list(split_line = split_line, summary = summary(fit))
+            result_detail[[i]] <- list(split_line = split_line, summary = summary(fit))
           }
 
         }
 
     }
+
+    if (isTRUE(detail_show)) {
+           names(result_detail)<-names(x)
+    }
+
+    result_dataframe<-as.data.frame(do.call(rbind,result_dataframe), stringsAsFactors = FALSE)
+
     result_dataframe <-  cbind(term= row.names(result_dataframe), result_dataframe)
     row.names(result_dataframe) <- NULL
     result_dataframe <- as.data.frame(result_dataframe, stringsAsFactors = FALSE)
