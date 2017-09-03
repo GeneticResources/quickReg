@@ -18,6 +18,5 @@ detail.reg <- function(x) {
         stop("x should be a `reg` object.", call. = FALSE)
     }
     result <- x$detail
-    if ()
     return(result)
 }

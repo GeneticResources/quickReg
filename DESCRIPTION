@@ -20,7 +20,8 @@ Imports:
 Suggests:
     ggthemes,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 License: GPL-2
 BugReports: Xikun Han <hanxikun2014@163.com>
 LazyData: true

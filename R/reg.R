@@ -1,6 +1,6 @@
-#' Apply regression models only one dependent varibale
+#' Build regression models only one dependent varibale
 #'
-#' Apply general linear model, generalized linear model, cox regression model,etc.
+#' Build general linear model, generalized linear model, cox regression model,etc.
 
 #' @param data A data.frame
 #' @param x Integer column indices or names of the variables to be included in univariate analysis, the default columns are all the variables except `y` and `time` and `cov`.
@@ -90,15 +90,21 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
         var_formula<-as.formula(paste0(y,"~",paste(c(group_x,cov),sep="",collapse = "+")))
 
         if (model == "lm") {
+          tryCatch({
             fit <- lm(var_formula,data=dd)
             coef <- cbind(fit$coef, suppressMessages(confint(fit)))
-
             one <- cbind(group_x, summary(fit)$coefficients, coef,var_n)
-            if (!isTRUE(cov_show)) {
+             one<-as.data.frame(one,stringsAsFactors = FALSE)
+             if (!isTRUE(cov_show)) {
               var_rowname<-rownames(one)
               one<-one[grep(pattern=paste0("^",group_x),var_rowname),]
             }
-            result_dataframe[[i]] <- one
+          },error = function(err) {
+             warning(paste0("Column: `", group_x, "` cannot fit regression model, please check.\n"),
+            call. = FALSE)
+            fit<<-NA
+            one <<- c(group_x, rep(NA,8))
+            },finally = {result_dataframe[[i]] <- one})
             if (isTRUE(detail_show)) {
               result_detail[[i]] <- list(split_line = split_line, summary = summary(fit))
             }
@@ -109,6 +115,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
             # } else {
             #     fit <- glm(var_formula,data=dd, family = binomial(link = "logit"))
             #     }
+          tryCatch({
             fit <- glm(var_formula,data=dd, family = binomial(link = "logit"))
             coef <- cbind(fit$coef, suppressMessages(confint(fit)))
             or = exp(coef)
@@ -118,21 +125,34 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
               var_rowname<-row.names(one)
               one<-one[grep(pattern=paste0("^",group_x),var_rowname),]
             }
-            result_dataframe[[i]] <- one
+          },error = function(err) {
+             warning(paste0("Column: `", group_x, "` cannot fit regression model, please check.\n"),
+            call. = FALSE)
+            fit<<-NA
+            one <<- c(group_x, rep(NA,8))
+            },finally = {result_dataframe[[i]] <- one})
             if (isTRUE(detail_show)) {
               result_detail[[i]] <- list(split_line = split_line, summary = summary(fit),
                                                `OR(95%CI)` = or)
             }
 
         } else if (model == "coxph") {
-          var_formula<-as.formula(paste0("survival::Surv(time = ",time,", event =",y,")","~",paste(c(i,cov),sep="",collapse = "+")))
-          fit <- survival::coxph(var_formula,data=dd)
+          var_formula<-as.formula(paste0("survival::Surv(time = ",time,", event =",y,")","~",paste(c(group_x,cov),sep="",collapse = "+")))
+          tryCatch({
+            fit <- survival::coxph(var_formula,data=dd)
           one <- cbind(group_x, summary(fit)$coefficients, exp(confint(fit)),var_n)
+          one<-as.data.frame(one,stringsAsFactors = FALSE)
           if (!isTRUE(cov_show)) {
             var_rowname<-rownames(one)
             one<-one[grep(pattern=paste0("^",group_x),var_rowname),]
           }
-          result_dataframe[[i]] <- one
+          },error = function(err) {
+             warning(paste0("Column: `", group_x, "` cannot fit regression model, please check.\n"),
+            call. = FALSE)
+            fit<<-NA
+            one <<- c(group_x, rep(NA,8))
+            },finally = {result_dataframe[[i]] <- one})
+
           if (isTRUE(detail_show)) {
             result_detail[[i]] <- list(split_line = split_line, summary = summary(fit))
           }
@@ -142,7 +162,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
     }
 
     if (isTRUE(detail_show)) {
-           names(result_detail)<-names(x)
+           names(result_detail)<-x
     }
 
     result_dataframe<-as.data.frame(do.call(rbind,result_dataframe), stringsAsFactors = FALSE)
@@ -150,7 +170,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
     result_dataframe <-  cbind(term= row.names(result_dataframe), result_dataframe)
     row.names(result_dataframe) <- NULL
     result_dataframe <- as.data.frame(result_dataframe, stringsAsFactors = FALSE)
-    result_dataframe <- result_dataframe[result_dataframe$term != "(Intercept)",]
+    result_dataframe <- result_dataframe[!grepl("(Intercept)",result_dataframe$term),]
 
     result_dataframe[,c(3:NCOL(result_dataframe))] <- lapply(result_dataframe[,c(3:NCOL(result_dataframe))], as.numeric)
 
