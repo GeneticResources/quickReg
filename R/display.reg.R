@@ -1,8 +1,8 @@
-#' @title summary the result of univariate regression
+#' @title summary the result of regression models
 #'
-#' @description return summary information of univariate regression.
+#' @description return summary information of regression models.
 
-#' @param x A reg object
+#' @param x A reg object without covariates information
 #' @param cuts A vector of significance values.
 #' @param all_var A logical, whether to display all variables at specific p value cut-off, if \code{FALSE}, only display the first 10 variables
 #' @param \dots additional arguments

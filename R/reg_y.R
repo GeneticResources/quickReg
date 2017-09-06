@@ -16,16 +16,9 @@
 #' @importFrom stats binomial confint glm lm
 #' @export
 #' @examples
-#' reg_glm<-reg(data = diabetes, x = c(1:4, 6), y = 5, factor = c(1, 3, 4), model = 'glm')
+#' reg_glm<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'glm')
 #' ##  subset result like a list
-#' reg_glm$detail
 #' reg_glm$dataframe
-#' reg_glm[2]
-#' reg_glm$detail[2:4]
-#' ##  other methods
-#' fit<-reg(data = diabetes, x = c(1, 3:6), y = "age", factor = c(1, 3, 4), model = 'lm')
-#' fit<-reg(data = diabetes, x = c( "sex","education","BMI"), y = "diabetes",
-#' time ="age", factor = c("sex","smoking","education"), model = 'coxph')
 
 
 reg_y <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model = NULL,
@@ -70,7 +63,6 @@ reg_y <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model
     result_detail_y<-NULL
   }
 
-
   split_line <- paste0(rep.int("#",100),collapse = "")
 
   for (i in seq_along(y)) {
@@ -91,7 +83,7 @@ reg_y <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model
 
   result_dataframe_y<-as.data.frame(do.call(rbind,result_dataframe_y), stringsAsFactors = FALSE)
 
-
+  result_detail_y[["call"]] <- match.call()
   result <- list(detail = result_detail_y, dataframe = result_dataframe_y)
   class(result) <- "reg_y"
   return(invisible(result))

@@ -1,7 +1,7 @@
-#' Generic function for class 'reg'
+#' Generic function for class 'reg' or 'reg_y'
 #'
-#' Generic function for class 'reg' to extracte concentrated results of regression models.
-#' @param x A reg object
+#' Generic function to extracte concentrated results of regression models.
+#' @param x A reg or reg_y object
 #' @param \dots additional arguments
 #' @export
 #' @return A data frame of regression  result
