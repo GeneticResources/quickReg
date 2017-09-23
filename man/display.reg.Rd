@@ -2,13 +2,13 @@
 % Please edit documentation in R/display.reg.R
 \name{display.reg}
 \alias{display.reg}
-\title{summary the result of univariate regression}
+\title{summary the result of regression models}
 \usage{
 \method{display}{reg}(x, cuts = c(0.001, 0.01, 0.05, 0.1, 1),
   all_var = TRUE, ...)
 }
 \arguments{
-\item{x}{A reg object}
+\item{x}{A reg object without covariates information}
 
 \item{cuts}{A vector of significance values.}
 
@@ -20,7 +20,7 @@
 Summary information of significant varibles.
 }
 \description{
-return summary information of univariate regression.
+return summary information of regression models.
 }
 \examples{
 reg_glm<-reg(data = diabetes, y = 5, factor = c(1, 3, 4), model = 'glm')

@@ -2,15 +2,18 @@
 % Please edit documentation in R/detail.reg.R
 \name{detail.reg}
 \alias{detail.reg}
-\title{Retrieve detail results of univariate regression models}
+\alias{detail.reg}
+\title{Retrieve detail results of regression models}
 \usage{
+\method{detail}{reg}(x)
+
 \method{detail}{reg}(x)
 }
 \arguments{
-\item{x}{A reg object}
+\item{x}{A reg or reg_y object}
 }
 \description{
-Retrieve detail results of univariate regression models
+Retrieve detail results of regression models
 }
 \examples{
 data(diabetes)

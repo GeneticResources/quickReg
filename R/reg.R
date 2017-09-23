@@ -12,6 +12,8 @@
 # @param \dots Further arguments passed to regression model
 #' @param  cov_show A logical, whether to create covariates result, default FALSE
 #' @param  detail_show A logical, whether to create each regression result, default FALSE
+#' @param confint_glm A character, 'defaul' or 'profile'. The default method to compute confidence intervals for 'glm' class is profile likelihood method ('profile'), but it is pretty slow.
+#' You could specify 'default' for speed.
 #' @return The return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame
 #' @importFrom stats binomial confint glm lm
 #' @export
@@ -29,7 +31,7 @@
 
 
 reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model = NULL,
-    time = NULL, cov_show=FALSE,detail_show=FALSE) {
+    time = NULL, cov_show=FALSE,detail_show=FALSE,confint_glm="profile") {
   if(!is.data.frame(data)) {
     tryCatch( {
       data<-as.data.frame(data,stringsAsFactors = FALSE)
@@ -74,9 +76,9 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
     } else {
               result_dataframe <- vector(mode = "list", length = length(x))
               result_detail<-NULL
-            }
+    }
 
-
+    if(! confint_glm %in% c("profile","default")) stop("Confidence interval method for glm should be `profile` or `default`.", call. = FALSE)
 
     split_line <- paste0(rep.int("=",80),collapse = "")
 
@@ -117,7 +119,12 @@ reg <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model =
             #     }
           tryCatch({
             fit <- glm(var_formula,data=dd, family = binomial(link = "logit"))
-            coef <- cbind(fit$coef, suppressMessages(confint(fit)))
+            if (confint_glm=="profile") {
+              coef <- cbind(fit$coef, suppressMessages(confint(fit)))
+            } else {
+              coef <- cbind(fit$coef, suppressMessages(confint.default(fit)))
+            }
+
             or = exp(coef)
             one <- cbind(group_x, summary(fit)$coefficients, or,var_n)
             one<-as.data.frame(one,stringsAsFactors = FALSE)

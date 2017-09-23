@@ -2,15 +2,15 @@
 % Please edit documentation in R/detail.R
 \name{detail}
 \alias{detail}
-\title{Generic function for class 'reg'}
+\title{Generic function for class 'reg' or 'reg_y'}
 \usage{
 detail(x)
 }
 \arguments{
-\item{x}{A reg object}
+\item{x}{A reg or reg_y object}
 }
 \description{
-Generic function for class 'reg' to extracte every regression model result.
+Generic function to extracte every regression model result.
 }
 \examples{
 data(diabetes)

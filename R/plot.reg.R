@@ -121,7 +121,9 @@ plot.reg_y <- function(x, limits = c(NA, NA), sort = "order", title=NULL,...) {
         na.rm = TRUE)+
     facet_wrap(~group_y, scales = "free")
 
-  if (is.null(title)) p<-p+labs(title=substitute(x))
+   if (is.null(title)) p<-p+labs(title=substitute(x)) else {
+      p<-p+labs(title=title)
+  }
 
   p <- switch(x$detail$call$model,
               lm = p + ylab("coefficients(95%CI)")+geom_abline(intercept = 0, slope = 0, colour = "red", size = 0.1),

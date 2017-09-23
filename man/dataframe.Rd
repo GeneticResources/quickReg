@@ -2,20 +2,20 @@
 % Please edit documentation in R/dataframe.R
 \name{dataframe}
 \alias{dataframe}
-\title{Generic function for class 'reg'}
+\title{Generic function for class 'reg' or 'reg_y'}
 \usage{
 dataframe(x, ...)
 }
 \arguments{
-\item{x}{A reg object}
+\item{x}{A reg or reg_y object}
 
 \item{\dots}{additional arguments}
 }
 \value{
-A data frame of univariate regression  result
+A data frame of regression  result
 }
 \description{
-Generic function for class 'reg' to extracte concentrated results of regression models.
+Generic function to extracte concentrated results of regression models.
 }
 \examples{
 data(diabetes)

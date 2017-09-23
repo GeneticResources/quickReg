@@ -2,13 +2,13 @@
 % Please edit documentation in R/dataframe.reg.R
 \name{dataframe.reg}
 \alias{dataframe.reg}
-\title{Retrieve a data.frame result of univariate regression}
+\title{Retrieve a data.frame from regression models}
 \usage{
 \method{dataframe}{reg}(x, save = FALSE, file = NULL, sep = ",",
   row.names = FALSE, ...)
 }
 \arguments{
-\item{x}{A reg object}
+\item{x}{A reg or reg_y object}
 
 \item{save}{A logical, whether to save the concentrated result}
 
@@ -17,7 +17,7 @@
 \item{sep, row.names, \dots}{See \code{\link{write.table}} for more details}
 }
 \description{
-Return a concentrated result of univariate regression models.
+Return a concentrated result of regression models.
 }
 \examples{
 reg_glm<-reg(data = diabetes, x=c(1:4),y = 5,
@@ -25,7 +25,6 @@ factor = c(1, 3, 4), model = 'glm')
 
 dataframe(reg_glm)
 # dataframe(reg_glm, save = TRUE)
-# dataframe(reg_glm, file = "C:/reg_glm_out.csv")
 }
 \seealso{
 \code{\link{reg}}
