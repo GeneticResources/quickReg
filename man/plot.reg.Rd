@@ -16,7 +16,7 @@
 
 \item{title}{title of plot}
 
-\item{\dots}{additional arguments}
+\item{\dots}{additional arguments. When using your own regression results rather than from 'quickReg', please provide `term`,`center`,`lower`, `high` and `model` for plot.}
 }
 \description{
 plot coefficients, OR or HR of regression models.

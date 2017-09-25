@@ -16,7 +16,8 @@ Imports:
     psych,
     utils,
     stats,
-    nortest
+    nortest,
+    dplyr
 Suggests:
     ggthemes,
     knitr,

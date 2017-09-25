@@ -2,18 +2,20 @@
 % Please edit documentation in R/reg.R
 \name{reg}
 \alias{reg}
-\title{Build regression models only one dependent varibale}
+\title{Build regression models}
 \usage{
-reg(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
-  model = NULL, time = NULL, cov_show = FALSE, detail_show = FALSE,
-  confint_glm = "profile")
+reg(data = NULL, x = NULL, y = NULL, group = NULL, cov = NULL,
+  factor = NULL, model = NULL, time = NULL, cov_show = FALSE,
+  group_combine = FALSE)
 }
 \arguments{
-\item{data}{A data.frame}
+\item{data}{A data.frame to build the regression model.}
 
-\item{x}{Integer column indices or names of the variables to be included in univariate analysis, the default columns are all the variables except `y` and `time` and `cov`.}
+\item{x}{Integer column indices or names of the variables to be included in univariate analysis. If \code{NULL}, the default columns are all the variables except `y`, `time` and `cov`.}
 
-\item{y}{Integer column indices or name of dependent variable}
+\item{y}{Integer column indice or name of dependent variables, integer or character, allow more than one dependent variables}
+
+\item{group}{Integer column indice or name of subgroup variables.}
 
 \item{cov}{Integer column indices or name of covariate variables}
 
@@ -25,26 +27,16 @@ reg(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
 
 \item{cov_show}{A logical, whether to create covariates result, default FALSE}
 
-\item{detail_show}{A logical, whether to create each regression result, default FALSE}
-
-\item{confint_glm}{A character, 'defaul' or 'profile'. The default method to compute confidence intervals for 'glm' class is profile likelihood method ('profile'), but it is pretty slow.
-You could specify 'default' for speed.}
+\item{group_combine}{A logical, subgroup analysis for group variables combination or each group variables. The default is FALSE (subgroup analysis for each group variable)}
 }
 \value{
 The return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame
 }
 \description{
-Build general linear model, generalized linear model, cox regression model,etc.
+Build general linear model, generalized linear model, cox regression model with one or more dependent variables. Allow regression based on subgroup variables.
 }
 \examples{
-reg_glm<-reg(data = diabetes, x = c(1:4, 6), y = 5, factor = c(1, 3, 4), model = 'glm')
+reg_glm<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'glm')
 ##  subset result like a list
-reg_glm$detail
 reg_glm$dataframe
-reg_glm[2]
-reg_glm$detail[2:4]
-##  other methods
-fit<-reg(data = diabetes, x = c(1, 3:6), y = "age", factor = c(1, 3, 4), model = 'lm')
-fit<-reg(data = diabetes, x = c( "sex","education","BMI"), y = "diabetes",
-time ="age", factor = c("sex","smoking","education"), model = 'coxph')
 }

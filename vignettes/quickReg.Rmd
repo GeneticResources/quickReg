@@ -1,6 +1,6 @@
 ---
 title: "quickReg"
-author: "Xikun Han,  <Xikun.Han@qimrberghofer.edu.au>"
+author: "Xikun Han,  <hanxikun2014@163.com>"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:

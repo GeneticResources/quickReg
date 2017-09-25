@@ -5,7 +5,7 @@
 \title{Build regression models with more than one dependent varibale}
 \usage{
 reg_y(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
-  model = NULL, time = NULL, cov_show = FALSE, detail_show = FALSE)
+  model = NULL, time = NULL, cov_show = FALSE)
 }
 \arguments{
 \item{data}{A data.frame}
@@ -23,11 +23,9 @@ reg_y(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
 \item{time}{Integer column indices  or name of survival time, used in cox regression, see \code{\link[survival]{coxph}} for more details}
 
 \item{cov_show}{A logical, whether to create covariates result, default FALSE}
-
-\item{detail_show}{A logical, whether to create each regression result, default FALSE}
 }
 \value{
-The return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame
+The return result is a concentrated result in a  data.frame.
 }
 \description{
 Build general linear model, generalized linear model, cox regression model,etc.
