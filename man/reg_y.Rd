@@ -4,7 +4,7 @@
 \alias{reg_y}
 \title{Build regression models with more than one dependent varibale}
 \usage{
-reg_y(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
+reg_y(data = NULL, x = NULL, y = NULL, cov = NULL, factors = NULL,
   model = NULL, time = NULL, cov_show = FALSE)
 }
 \arguments{
@@ -16,7 +16,7 @@ reg_y(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
 
 \item{cov}{Integer column indices or name of covariate variables}
 
-\item{factor}{Integer column indices or names of variables to be treated as factor}
+\item{factors}{Integer column indices or names of variables to be treated as factor}
 
 \item{model}{regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details}
 
@@ -29,9 +29,4 @@ The return result is a concentrated result in a  data.frame.
 }
 \description{
 Build general linear model, generalized linear model, cox regression model,etc.
-}
-\examples{
-reg_glm<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'glm')
-##  subset result like a list
-reg_glm$dataframe
 }

@@ -3,31 +3,31 @@ context("reg")
 test_that("reg_x for lm, glm and coxph model", {
 
   # basic models
-  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factor = c(1, 3, 4), model = 'lm')
+  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factors = c(1, 3, 4), model = 'lm')
   plot(fit)
-  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factor = c(1, 3, 4), model = 'glm')
+  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factors = c(1, 3, 4), model = 'glm')
   plot(fit)
-  fit<-reg_x(data = diabetes, x = c(3:4, 6), y ="diabetes",time=2,factor = c(1, 3, 4), model = 'coxph')
+  fit<-reg_x(data = diabetes, x = c(3:4, 6), y ="diabetes",time=2,factors = c(1, 3, 4), model = 'coxph')
   plot(fit)
 
   #cov_show
-  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" ,cov=13:14, factor = c(1, 3, 4), model = 'lm',cov_show = TRUE)
+  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" ,cov=13:14, factors = c(1, 3, 4), model = 'lm',cov_show = TRUE)
   expect_message(plot(fit))
-  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" ,cov=13:14, factor = c(1, 3, 4), model = 'glm',cov_show = TRUE)
+  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" ,cov=13:14, factors = c(1, 3, 4), model = 'glm',cov_show = TRUE)
   expect_message(plot(fit))
-  fit<-reg_x(data = diabetes, x = c(3:4, 6), y ="diabetes",cov=13:14,time=2,factor = c(1, 3, 4), model = 'coxph',cov_show = TRUE)
+  fit<-reg_x(data = diabetes, x = c(3:4, 6), y ="diabetes",cov=13:14,time=2,factors = c(1, 3, 4), model = 'coxph',cov_show = TRUE)
   expect_message(plot(fit))
 
   #detail_show
-  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factor = c(1, 3, 4), model = 'lm',detail_show = TRUE)
+  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factors = c(1, 3, 4), model = 'lm',detail_show = TRUE)
   expect_error(plot(fit))
-  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factor = c(1, 3, 4), model = 'glm',detail_show = TRUE)
+  fit<-reg_x(data = diabetes, x = c(1:4, 6), y ="diabetes" , factors = c(1, 3, 4), model = 'glm',detail_show = TRUE)
   expect_error(plot(fit))
-  fit<-reg_x(data = diabetes, x = c(3:4, 6), y ="diabetes",time=2,factor = c(1, 3, 4), model = 'coxph',detail_show = TRUE)
+  fit<-reg_x(data = diabetes, x = c(3:4, 6), y ="diabetes",time=2,factors = c(1, 3, 4), model = 'coxph',detail_show = TRUE)
   expect_error(plot(fit))
 
   # y is also in x
-  expect_warning(fit<-reg_x(data = diabetes, x = c(1:4, 5), y ="diabetes" , factor = c(1, 3, 4), model = 'lm'))
+  expect_warning(fit<-reg_x(data = diabetes, x = c(1:4, 5), y ="diabetes" , factors = c(1, 3, 4), model = 'lm'))
 
   })
 
@@ -35,23 +35,23 @@ test_that("reg_x for lm, glm and coxph model", {
 test_that("reg_y for lm, glm and coxph model", {
 
   # basic models
-  fit<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'lm')
+  fit<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factors = c(1, 3, 4), model = 'lm')
   expect_message(plot(fit))
-  fit<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'glm')
+  fit<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factors = c(1, 3, 4), model = 'glm')
   expect_message(plot(fit))
-  fit<-reg_y(data = diabetes, x = c(3:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153"),time=2,factor = c(1, 3, 4), model = 'coxph')
+  fit<-reg_y(data = diabetes, x = c(3:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153"),time=2,factors = c(1, 3, 4), model = 'coxph')
   expect_message(plot(fit))
 
   #cov_show
-  fit<-reg_y(data = diabetes, x = c(1:3, 6), y =c("diabetes","C2rs9332739","CFBrs641153") ,cov=c(11,14), factor = c(1, 3, 4), model = 'lm',cov_show = TRUE)
+  fit<-reg_y(data = diabetes, x = c(1:3, 6), y =c("diabetes","C2rs9332739","CFBrs641153") ,cov=c(11,14), factors = c(1, 3, 4), model = 'lm',cov_show = TRUE)
   expect_message(plot(fit))
-  fit<-reg_y(data = diabetes, x = c(1:3, 6), y =c("diabetes","C2rs9332739","CFBrs641153") ,cov=c(11,14), factor = c(1, 3, 4), model = 'glm',cov_show = TRUE)
+  fit<-reg_y(data = diabetes, x = c(1:3, 6), y =c("diabetes","C2rs9332739","CFBrs641153") ,cov=c(11,14), factors = c(1, 3, 4), model = 'glm',cov_show = TRUE)
   expect_message(plot(fit))
-  fit<-reg_y(data = diabetes, x = c(1,3, 6), y =c("diabetes","C2rs9332739","CFBrs641153"),time=2,cov=c(11,14),factor = c(1, 3, 4), model = 'coxph',cov_show = TRUE)
+  fit<-reg_y(data = diabetes, x = c(1,3, 6), y =c("diabetes","C2rs9332739","CFBrs641153"),time=2,cov=c(11,14),factors = c(1, 3, 4), model = 'coxph',cov_show = TRUE)
   expect_message(plot(fit))
 
   # y is also in x
-  expect_warning(fit<-reg_y(data = diabetes, x = c(1:4, 5), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'lm'))
+  expect_warning(fit<-reg_y(data = diabetes, x = c(1:4, 5), y =c("diabetes","C2rs9332739","CFBrs641153") , factors = c(1, 3, 4), model = 'lm'))
 
 
 })
@@ -60,15 +60,15 @@ test_that("reg_y for lm, glm and coxph model", {
 test_that("reg for lm, glm and coxph model", {
 
   ## subgroup analysis for reg
-  fit<-reg(data = diabetes, x = c(2:4),group=c(1,13,14), y ="diabetes" , factor = c(1, 3, 4), model = 'glm')
+  fit<-reg(data = diabetes, x = c(2:4),group=c(1,13,14), y ="diabetes" , factors = c(1, 3, 4), model = 'glm')
   expect_message(plot(fit))
-  fit<-reg(data = diabetes, x = c(2:4),group=c(1,13,14), y ="diabetes" , factor = c(1, 3, 4), model = 'glm',group_combine = TRUE)
+  fit<-reg(data = diabetes, x = c(2:4),group=c(1,13,14), y ="diabetes" , factors = c(1, 3, 4), model = 'glm',group_combine = TRUE)
   expect_message(plot(fit))
-  fit<-reg(data = diabetes, x = c(2:4),group=c(1,13,14),cov=c(11,12), y ="diabetes" , factor = c(1, 3, 4), model = 'glm',cov_show = TRUE)
+  fit<-reg(data = diabetes, x = c(2:4),group=c(1,13,14),cov=c(11,12), y ="diabetes" , factors = c(1, 3, 4), model = 'glm',cov_show = TRUE)
   expect_message(plot(fit))
-  fit<-reg(data = diabetes, x = c(2:4),group=c(1,14),cov=c(11,12),y ="diabetes" , factor = c(1, 3, 4), model = 'glm',group_combine = TRUE)
+  fit<-reg(data = diabetes, x = c(2:4),group=c(1,14),cov=c(11,12),y ="diabetes" , factors = c(1, 3, 4), model = 'glm',group_combine = TRUE)
   expect_message(plot(fit))
-  fit<-reg(data = diabetes, x = c(2:4),group=c(1,14),cov=c(11,12), y =c("diabetes","CFBrs641153"), factor = c(1, 3, 4), model = 'glm',group_combine = TRUE,cov_show = TRUE)
+  fit<-reg(data = diabetes, x = c(2:4),group=c(1,14),cov=c(11,12), y =c("diabetes","CFBrs641153"), factors = c(1, 3, 4), model = 'glm',group_combine = TRUE,cov_show = TRUE)
   expect_message(plot(fit))
 })
 

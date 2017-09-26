@@ -2,19 +2,37 @@
 % Please edit documentation in R/plot.reg.R
 \name{plot.reg}
 \alias{plot.reg}
+\alias{plot_reg}
 \title{plot the result of regression result}
 \usage{
 \method{plot}{reg}(x, limits = c(NA, NA), sort = "order", title = NULL,
-  ...)
+  remove = TRUE, term = NULL, center = NULL, low = NULL, high = NULL,
+  model = NULL, ...)
+
+plot_reg(x, limits = c(NA, NA), sort = "order", title = NULL,
+  remove = TRUE, term = NULL, center = NULL, low = NULL, high = NULL,
+  model = NULL, ...)
 }
 \arguments{
-\item{x}{A reg or reg_y object without covariates information, 'cov_show=FALSE'}
+\item{x}{A reg, reg_y or reg_x object without covariates information, 'cov_show=FALSE'}
 
 \item{limits}{A numeric vector of length two providing limits of the scale. Use NA to refer to the existing minimum or maximum value.}
 
-\item{sort}{A character determining the order of variables to plot, 'alphabetical' or 'order'. The later is the default to sort varibales according to their effect size.}
+\item{sort}{A character determining the order of variables to plot, 'alphabetical' or 'order'. The later is the default to sort variables according to their effect size.}
 
 \item{title}{title of plot}
+
+\item{remove}{A logical, whether to remove infinite and NA value. The default is TRUE}
+
+\item{term}{A character of x axis variable in plot}
+
+\item{center}{A character of coefficient, OR or HR variable in plot}
+
+\item{low}{A character of lower confidence interval variable}
+
+\item{high}{A character of upper confidence interval variable}
+
+\item{model}{A character of model, "lm", "glm" or "coxph"}
 
 \item{\dots}{additional arguments. When using your own regression results rather than from 'quickReg', please provide `term`,`center`,`lower`, `high` and `model` for plot.}
 }
@@ -25,7 +43,8 @@ plot coefficients, OR or HR of regression models.
 reg_glm<-reg(data = diabetes, y = 5, factor = c(1, 3, 4), model = 'glm')
 plot(reg_glm)
 plot(reg_glm, limits = c(NA, 3))
+
 }
 \seealso{
-\code{\link{reg}}, \code{\link{dataframe.reg}},  \code{\link{detail.reg}}
+\code{\link{reg}}, \code{\link{reg_x}}, \code{\link{reg_y}}
 }

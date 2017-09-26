@@ -1,4 +1,4 @@
-#' Build regression models with more than one dependent varibale
+#' Build regression models with more than one dependent variable
 #'
 #' Build general linear model, generalized linear model, cox regression model,etc.
 
@@ -6,7 +6,7 @@
 #' @param x Integer column indices or names of the variables to be included in univariate analysis, the default columns are all the variables except `y` and `time` and `cov`.
 #' @param y Integer column indices or name of dependent variable
 #' @param cov Integer column indices or name of covariate variables
-#' @param factor Integer column indices or names of variables to be treated as factor
+#' @param factors Integer column indices or names of variables to be treated as factor
 #' @param model regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details
 #' @param time Integer column indices  or name of survival time, used in cox regression, see \code{\link[survival]{coxph}} for more details
 # @param \dots Further arguments passed to regression model
@@ -14,13 +14,10 @@
 #' @return The return result is a concentrated result in a  data.frame.
 #' @importFrom stats binomial confint glm lm
 #' @export
-#' @examples
-#' reg_glm<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'glm')
-#' ##  subset result like a list
-#' reg_glm$dataframe
 
 
-reg_y <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model = NULL,
+
+reg_y <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factors = NULL, model = NULL,
                 time = NULL, cov_show=FALSE) {
 
   if(!is.data.frame(data)) {
@@ -33,7 +30,7 @@ reg_y <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model
   if (!is.character(x)) x<-names(data)[x]
   if (!is.character(y)) y<-names(data)[y]
   if (!is.character(cov)) cov<-names(data)[cov]
-  if (!is.character(factor)) factor<-names(data)[factor]
+  if (!is.character(factors)) factors<-names(data)[factors]
   if (!is.character(time)) time<-names(data)[time]
 
   if (length(x)==0)
@@ -60,14 +57,14 @@ reg_y <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model
   if (length(y) >1) {
     for (i in seq_along(y)) {
       group_y <- y[i]
-      fit_y<-reg_x(data = data, x = x, y = group_y,cov=cov, factor = factor, model = model,
+      fit_y<-reg_x(data = data, x = x, y = group_y,cov=cov, factors = factors, model = model,
                    time = time, cov_show=cov_show,detail_show=FALSE)
       result_dataframe_y[[i]]<-as.data.frame(cbind(group_y, fit_y),stringsAsFactors = FALSE)
     }
     result_dataframe_y<-as.data.frame(do.call(rbind,result_dataframe_y), stringsAsFactors = FALSE)
     } else {
     group_y <- y
-    fit_y<-reg_x(data = data, x = x, y = group_y,cov=cov, factor = factor, model = model,
+    fit_y<-reg_x(data = data, x = x, y = group_y,cov=cov, factors = factors, model = model,
                  time = time, cov_show=cov_show,detail_show=FALSE)
     result_dataframe_y<-as.data.frame(cbind(group_y, fit_y),stringsAsFactors = FALSE)
   }

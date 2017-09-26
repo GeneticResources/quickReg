@@ -6,43 +6,51 @@
 #' @param variables  Column indices or names of the variables in the dataset to display, the default columns are all the variables
 #' @param group Column indices or names of the first subgroup variables. Must provide.
 #' @param super_group Column indices or names of the further subgroup variables.
-#' @param group_combine A logical, subgroup analysis for combination of group variables or each group variables. The default is FALSE (subgroup analysis for each group variable)
+#' @param group_combine A logical, subgroup analysis for combination of group variables or for each group variables. The default is FALSE (subgroup analysis for each group variable)
 #' @param mean_or_median A character to specify mean or median to used for continuous variables, either "mean" or "median". The default is "mean"
-#' @param useNA Whether to include NA values in the table, see \code{\link{table}} for more details
+#' @param addNA Whether to include NA values in the table, see \code{\link{table}} for more details
 #' @param table_margin Index of generate margin for, see \code{\link{prop.table}} for more details
-#' @param discrete_limit A numeric defining the minimal of unique value to display the variable as count and frequency
+#' @param discrete_limit A numeric defining the minimal of unique value to display the variable as count and frequency, the default is 10
 #' @param exclude_discrete Logical, whether to exclude discrete variables with more unique values specified by discrete_limit
 #' @param save_to_file  A character, containing file name or path
-#' @param normtest  A character indicating test of normality, the default method is \code{\link{shapiro.test}} when sample size no more than 5000, otherwise \code{\link[nortest]{lillie.test}}{Kolmogorov-Smirnov} is used, see package \strong{nortest} for more methods.Use 'shapiro.test', 'lillie.test', 'ad.test', etc to specify methods.
-#' @param \dots additional arguments
-#' @import nortest
+#' @param normtest  A character indicating test of normality, the default method is \code{\link{shapiro.test}} when sample size no more than 5000, otherwise \code{\link[nortest]{lillie.test}} {Kolmogorov-Smirnov} is used, see package \strong{nortest} for more methods.Use 'shapiro.test', 'lillie.test', 'ad.test', etc to specify methods.
+#' @param fill_variable A logical, whether to fill the variable column in result, the default is FALSE
+#' @import nortest dplyr rlang
+#' @importFrom stats binomial confint glm lm
+#' @importFrom stats anova  as.formula  chisq.test  complete.cases confint.default fisher.test  kruskal.test median na.omit quantile sd xtabs
+#' @importFrom utils write.table
 #' @export
-#' @seealso \code{\link{display.reg}},  \code{\link{display}}
+#' @note The return table is a data.frame.
+#' @note - P.value1 is ANOVA P value for continuous variables and chi-square test P value for discrete variables
+#' @note - P.value2 is Kruskal-Wallis test P value for continuous variables and fisher test P value for discrete variables if expected counts less than 5
+#' @note - normality is normality test P value for each group
 #' @examples
+#' \dontrun{
 #' data(diabetes)
 #' head(diabetes)
+#' library(dplyr);library(rlang)
 #' result_1<-diabetes %>%
 #'  group_by(sex) %>%
-#'  do(display_table(data=.,variables=c("age","smoking","education"),group="CFHrs2230199")) %>%
+#'  do(display_table(data=.,variables=c("age","smoking"),group="CFHrs2230199")) %>%
 #'  ungroup()
-#' result_2<-display_table_group(data=diabetes,variables=c("age","smoking","education"),group="CFHrs2230199",super_group = "sex")
+#' result_2<-display_table_group(data=diabetes,variables=c("age","smoking"),
+#' group="CFHrs2230199",super_group = "sex")
 #' identical(result,result1)
-#'
-#' result_3<-display_table_group(data=diabetes,variables=c("age","education"),group=c("smoking"),super_group = c("CFHrs2230199","sex"))
-#' result_4<-display_table_group(data=diabetes,variables=c("age","education"),group=c("smoking"),super_group = c("CFHrs2230199","sex"),group_combine=TRUE)
+#' result_3<-display_table_group(data=diabetes,variables=c("age","education"),
+#' group=c("smoking"),super_group = c("CFHrs2230199","sex"))
+#' result_4<-display_table_group(data=diabetes,variables=c("age","education"),
+#' group=c("smoking"),super_group = c("CFHrs2230199","sex"),group_combine=TRUE)
+#' }
 
 
 
+display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_median="mean",addNA = TRUE,table_margin=2, discrete_limit = 10, exclude_discrete=TRUE, save_to_file=NULL,normtest = NULL,fill_variable=FALSE) {
 
-display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_median="mean",addNA = TRUE,table_margin=2, discrete_limit = 10, exclude_discrete=TRUE, save_to_file=NULL,normtest = NULL) {
 
-
-  if(!is.data.frame(data)) {
     tryCatch( {
       data<-as.data.frame(data,stringsAsFactors = FALSE)
     }, error = function(e) stop("`data` is not a data.frame.", call. = FALSE)
     )
-  }
 
     if (is.null(variables ))
       variables  = seq_along(1:NCOL(data))
@@ -51,7 +59,11 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
     if (!is.character(group)) group<-names(data)[group]
 
     data<-filter(data,!is.na(!!sym(group)))
-    n_group<-NROW(unique(data[,group]))
+    n_group<-NROW(unique(data[,group,drop=FALSE]))
+
+    data[, group] <- as.factor(data[, group])
+
+
     ## data[,group]<-as.factor(data[,group])
 
     if (any(group %in% variables )) {
@@ -61,7 +73,6 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
     }
 
     result <- vector(mode = "list", length = length(variables ))
-
 
 
     ## functions used in display
@@ -93,7 +104,7 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
                   Q3=quantile(!!sym(x),probs=c(0.75),na.rm = TRUE),NA_=sum(is.na(!!sym(x)))) %>%
         ungroup()
       result_1[,2:6]<-lapply(result_1[,2:6],format_sprint)
-      result_1$mean_sd<-paste0(result_1$mean," ± ",result_1$sd)
+      result_1$mean_sd<-paste0(result_1$mean," +- ",result_1$sd)
       result_1$median_IQR<-paste0(result_1$median," (",result_1$Q1,", ",result_1$Q3,")")
       result_1<- as.data.frame(t(result_1),stringsAsFactors = FALSE)
       mean_sd_1<-result_1[c("mean_sd","NA_"),]
@@ -107,13 +118,13 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
         ungroup()
 
       result_2[,1:5]<-lapply(result_2[,1:5],format_sprint)
-      result_2$mean_sd<-paste0(result_2$mean," ± ",result_2$sd)
+      result_2$mean_sd<-paste0(result_2$mean," +- ",result_2$sd)
       result_2$median_IQR<-paste0(result_2$median," (",result_2$Q1,", ",result_2$Q3,")")
       result_2<- as.data.frame(t(result_2),stringsAsFactors = FALSE)
       mean_sd_2<-result_2[c("mean_sd","NA_"),]
       median_IQR_2<-result_2[c("median_IQR","NA_"),]
 
-      mean_sd<-cbind(c("mean ± sd","NA"),mean_sd_2,mean_sd_1,stringsAsFactors=FALSE)
+      mean_sd<-cbind(c("mean +- sd","NA"),mean_sd_2,mean_sd_1,stringsAsFactors=FALSE)
       names(mean_sd)<-c("level",paste0("V",1:( n_group+1)))
       median_IQR<-cbind(c("median (Q1,Q3)","NA"),median_IQR_2,median_IQR_1,stringsAsFactors=FALSE)
       names(median_IQR)<-c("level",paste0("V",1:( n_group+1)))
@@ -155,7 +166,12 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
     continuous_table<-function(data=data,x=x,group=group,mean_or_median_ = mean_or_median,normtest_=normtest) {
       result<-continuous_stat(data=data,x=x,group=group,mean_or_median_)
       row_fill<-rep("",NROW(result)-1)
-      result<-cbind(variable=c(x,row_fill),result,P.value1=c(continuous_test(data=data,x=x,group=group)$p.anova,row_fill),P.value2=c(continuous_test(data=data,x=x,group=group)$p.rank,row_fill),normality=c(continuous_normality(data=data,x=x,group=group,normtest_)$p.normality,row_fill),stringsAsFactors=FALSE)
+      if(fill_variable) {
+        result<-cbind(variable=x,result,P.value1=c(continuous_test(data=data,x=x,group=group)$p.anova,row_fill),P.value2=c(continuous_test(data=data,x=x,group=group)$p.rank,row_fill),normality=c(continuous_normality(data=data,x=x,group=group,normtest_)$p.normality,row_fill),stringsAsFactors=FALSE)
+      } else {
+        result<-cbind(variable=c(x,row_fill),result,P.value1=c(continuous_test(data=data,x=x,group=group)$p.anova,row_fill),P.value2=c(continuous_test(data=data,x=x,group=group)$p.rank,row_fill),normality=c(continuous_normality(data=data,x=x,group=group,normtest_)$p.normality,row_fill),stringsAsFactors=FALSE)
+    }
+
       return(result)
     }
 
@@ -194,10 +210,17 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
       names(var_tab)[-1]<-c(paste0("V",1:(n_group+1)))
 
       row_fill<-rep("",NROW(var_tab)-1)
-      result<-cbind(variable=c(x,row_fill),var_tab,P.value1=c(p.chisq,row_fill),P.value2=c(p.fisher,row_fill),normality="",stringsAsFactors=FALSE)
+      if(fill_variable) {
+        result<-cbind(variable=x,var_tab,P.value1=c(p.chisq,row_fill),P.value2=c(p.fisher,row_fill),normality="",stringsAsFactors=FALSE)
+      } else {
+        result<-cbind(variable=c(x,row_fill),var_tab,P.value1=c(p.chisq,row_fill),P.value2=c(p.fisher,row_fill),normality="",stringsAsFactors=FALSE)
+      }
+
       return(result)
 
     }
+
+
 
    for (i in seq_along(variables )) {
       var_i<- variables[i]
@@ -248,15 +271,14 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
 
 
 
-#'@describeIn display_table Allow more  subgroup analysis
-display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_group=NULL,group_combine=FALSE, mean_or_median="mean",addNA = TRUE,table_margin=2, discrete_limit = 10, exclude_discrete=TRUE, normtest = NULL) {
+#' @describeIn display_table Allow more subgroup analysis, see the package vignette for more details
+#' @export
+display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_group=NULL,group_combine=FALSE, mean_or_median="mean",addNA = TRUE,table_margin=2, discrete_limit = 10, exclude_discrete=TRUE, normtest = NULL,fill_variable=FALSE) {
 
-  if(!is.data.frame(data)) {
     tryCatch( {
       data<-as.data.frame(data,stringsAsFactors = FALSE)
     }, error = function(e) stop("`data` is not a data.frame.", call. = FALSE)
     )
-  }
 
   if (is.null(variables ))
     variables  = seq_along(1:NCOL(data))
@@ -282,7 +304,7 @@ display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_
       super_group_i <- super_group[i]
       fit<-data %>%
         group_by_at(vars(super_group_i))  %>%
-        do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, normtest = normtest)) %>%
+        do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, normtest = normtest,fill_variable=fill_variable)) %>%
         ungroup() %>%
         rename(super_group_level=!!super_group_i)
       result_dataframe[[i]]<-as.data.frame(base::cbind(super_group=super_group_i, fit),stringsAsFactors = FALSE)
@@ -292,7 +314,7 @@ display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_
   } else {
     result<-data %>%
       group_by_at(vars(super_group))  %>%
-      do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, normtest = normtest)) %>%
+      do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, normtest = normtest,fill_variable=fill_variable)) %>%
       ungroup()
   }
 
@@ -304,6 +326,10 @@ display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_
 
 
 
+
+
+
+utils::globalVariables(c("normtest", ".", "mean_or_median", "n_group", "table_margin", "discrete_limit",'exclude_discrete'))
 
 
 

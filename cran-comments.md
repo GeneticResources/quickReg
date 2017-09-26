@@ -1,7 +1,7 @@
 This is a resubmission, 
 
-*  support variable names or indexes in 'display.data.frame'
-*  minor modifications in 'dataframe.reg' and 'reg' function. 
+*  reshpae the package with subgroup analsis for regression and plot.
+*  Add other useful functions
 
 
 

@@ -1,4 +1,4 @@
-#' Build regression models only one dependent varibale
+#' Build regression models only one dependent variable
 #'
 #' Build general linear model, generalized linear model, cox regression model with only one dependent variables.
 
@@ -6,32 +6,32 @@
 #' @param x Integer column indices or names of the variables to be included in univariate analysis. If \code{NULL}, the default columns are all the variables except `y`, `time` and `cov`.
 #' @param y Integer column indice or name of dependent variable, only one integer or character
 #' @param cov Integer column indices or name of covariate variables
-#' @param factor Integer column indices or names of variables to be treated as factor
+#' @param factors Integer column indices or names of variables to be treated as factor
 #' @param model regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details
 #' @param time Integer column indices  or name of survival time, used in cox regression, see \code{\link[survival]{coxph}} for more details
 # @param \dots Further arguments passed to regression model
 #' @param  cov_show A logical, whether to create covariates result, default FALSE
 #' @param  detail_show A logical, whether to create each regression result, default FALSE. If TRUE with many regressions, the return result could be very large.
-#' @param confint_glm A character, 'defaul' or 'profile'. The default method for 'glm' class to compute confidence intervals assumes asymptotic normality \code{\link[stats]{confint}}, you can also use profile likelihood method \code{\link[MASS]{confint.glm}}, but it is pretty slow.
+#' @param confint_glm A character, 'default' or 'profile'. The default method for 'glm' class to compute confidence intervals assumes asymptotic normality \code{\link[stats]{confint}}, you can also use profile likelihood method \code{\link[MASS]{confint.glm}}, but it is pretty slow.
 #' In this case you could specify 'default' for speed.
 #' @param save_to_file  A character, containing file name or path
-#' @return If detail_show is TRUE, the return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame. Otherwise, only return concentrated result in a  data.frame.
+#' @return If detail_show is TRUE, the return result is a list including two components, the first part is a detailed analysis result, the second part is a concentrated result in a  data.frame. Otherwise, only return concentrated result in a  data.frame.
 #' @importFrom stats binomial confint glm lm
 #' @export
 #' @examples
-#' reg_glm<-reg(data = diabetes, x = c(1:4, 6), y = 5, factor = c(1, 3, 4), model = 'glm')
+#' reg_glm<-reg(data = diabetes, x = c(1:4, 6), y = 5, factors = c(1, 3, 4), model = 'glm')
 #' ##  subset result like a list
 #' reg_glm$detail
 #' reg_glm$dataframe
 #' reg_glm[2]
 #' reg_glm$detail[2:4]
 #' ##  other methods
-#' fit<-reg(data = diabetes, x = c(1, 3:6), y = "age", factor = c(1, 3, 4), model = 'lm')
+#' fit<-reg(data = diabetes, x = c(1, 3:6), y = "age", factors = c(1, 3, 4), model = 'lm')
 #' fit<-reg(data = diabetes, x = c( "sex","education","BMI"), y = "diabetes",
-#' time ="age", factor = c("sex","smoking","education"), model = 'coxph')
+#' time ="age", factors = c("sex","smoking","education"), model = 'coxph')
 
 
-reg_x <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model = NULL,
+reg_x <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factors = NULL, model = NULL,
                 time = NULL, cov_show=FALSE,detail_show=FALSE,confint_glm="default",save_to_file=NULL ) {
   if(!is.data.frame(data)) {
     tryCatch( {
@@ -40,11 +40,11 @@ reg_x <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model
     )
   }
   if (is.null(y) || length(y) != 1)
-    stop("One dependent varibale should be provided or use reg_y for more than one dependent varibales!", call. = FALSE)
+    stop("One dependent variable should be provided or use reg_y for more than one dependent varibales!", call. = FALSE)
   if (!is.character(x)) x<-names(data)[x]
   if (!is.character(y)) y<-names(data)[y]
   if (!is.character(cov)) cov<-names(data)[cov]
-  if (!is.character(factor)) factor<-names(data)[factor]
+  if (!is.character(factors)) factors<-names(data)[factors]
   if (!is.character(time)) time<-names(data)[time]
 
   if (length(x)==0)
@@ -62,9 +62,9 @@ reg_x <- function(data = NULL, x = NULL, y = NULL,cov=NULL, factor = NULL, model
     cov = setdiff(cov,x)
   }
 
-  if (is.null(factor)) {
+  if (is.null(factors)) {
     data <- data
-  } else  data[, factor] <- lapply(data[, factor], factor)
+  } else  data[, factors] <- lapply(data[, factors,drop=FALSE], factor)
 
   if (!(model %in% c("lm", "glm", "coxph")))
     stop("model should be one of `lm`, `glm` or `coxph`.", call. = FALSE)

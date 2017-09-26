@@ -8,21 +8,15 @@
 #' @param group Integer column indice or name of subgroup variables.
 #' @param group_combine A logical, subgroup analysis for combination of group variables or each group variables. The default is FALSE (subgroup analysis for each group variable)
 #' @param cov Integer column indices or name of covariate variables
-#' @param factor Integer column indices or names of variables to be treated as factor
+#' @param factors Integer column indices or names of variables to be treated as factor
 #' @param model regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details
 #' @param time Integer column indices  or name of survival time, used in cox regression, see \code{\link[survival]{coxph}} for more details
 # @param \dots Further arguments passed to regression model
+#' @return The return result is a concentrated result in a  data.frame.
 #' @param  cov_show A logical, whether to create covariates result, default FALSE
-#' @return The return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame
-#' @importFrom stats binomial confint glm lm
 #' @export
-#' @examples
-#' reg_glm<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'glm')
-#' ##  subset result like a list
-#' reg_glm$dataframe
 
-
-reg <- function(data = NULL, x = NULL, y = NULL,group=NULL, cov=NULL, factor = NULL, model = NULL,
+reg <- function(data = NULL, x = NULL, y = NULL,group=NULL, cov=NULL, factors = NULL, model = NULL,
                   time = NULL, cov_show=FALSE,group_combine=FALSE) {
 
   if(!is.data.frame(data)) {
@@ -36,7 +30,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,group=NULL, cov=NULL, factor = N
   if (!is.character(y)) y<-names(data)[y]
   if (!is.character(group)) group<-names(data)[group]
   if (!is.character(cov)) cov<-names(data)[cov]
-  if (!is.character(factor)) factor<-names(data)[factor]
+  if (!is.character(factors)) factors<-names(data)[factors]
   if (!is.character(time)) time<-names(data)[time]
 
   if (length(x)==0)
@@ -69,7 +63,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,group=NULL, cov=NULL, factor = N
       group_i <- group[i]
       fit<-data %>%
         group_by_at(vars(group_i))  %>%
-        do(reg_y(data = ., x = x, y = y,cov=cov, factor = factor, model = model,
+        do(reg_y(data = ., x = x, y = y,cov=cov, factors = factors, model = model,
                time = time, cov_show=cov_show)) %>%
         ungroup() %>%
         rename(level=!!group_i)
@@ -80,7 +74,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,group=NULL, cov=NULL, factor = N
   } else {
     result<-data %>%
       group_by_at(vars(group))  %>%
-      do(reg_y(data = ., x = x, y = y,cov=cov, factor = factor, model = model, time = time, cov_show=cov_show)) %>%
+      do(reg_y(data = ., x = x, y = y,cov=cov, factors = factors, model = model, time = time, cov_show=cov_show)) %>%
       ungroup()
   }
   attr(result,"class")<-c("reg",class(result))

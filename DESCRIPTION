@@ -12,6 +12,7 @@ Depends:
     R (>= 3.0.0)
 Imports:
     ggplot2 (>= 2.0.0),
+    rlang (>= 0.1.2),
     survival,
     psych,
     utils,
@@ -24,7 +25,6 @@ Suggests:
     rmarkdown,
     testthat
 License: GPL-2
-BugReports: Xikun Han <hanxikun2014@163.com>
 LazyData: true
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr

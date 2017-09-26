@@ -4,7 +4,7 @@
 \alias{reg_x}
 \title{Build regression models only one dependent varibale}
 \usage{
-reg_x(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
+reg_x(data = NULL, x = NULL, y = NULL, cov = NULL, factors = NULL,
   model = NULL, time = NULL, cov_show = FALSE, detail_show = FALSE,
   confint_glm = "default", save_to_file = NULL)
 }
@@ -17,7 +17,7 @@ reg_x(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
 
 \item{cov}{Integer column indices or name of covariate variables}
 
-\item{factor}{Integer column indices or names of variables to be treated as factor}
+\item{factors}{Integer column indices or names of variables to be treated as factor}
 
 \item{model}{regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details}
 
@@ -27,26 +27,26 @@ reg_x(data = NULL, x = NULL, y = NULL, cov = NULL, factor = NULL,
 
 \item{detail_show}{A logical, whether to create each regression result, default FALSE. If TRUE with many regressions, the return result could be very large.}
 
-\item{confint_glm}{A character, 'defaul' or 'profile'. The default method for 'glm' class to compute confidence intervals assumes asymptotic normality \code{\link[stats]{confint}}, you can also use profile likelihood method \code{\link[MASS]{confint.glm}}, but it is pretty slow.
+\item{confint_glm}{A character, 'default' or 'profile'. The default method for 'glm' class to compute confidence intervals assumes asymptotic normality \code{\link[stats]{confint}}, you can also use profile likelihood method \code{\link[MASS]{confint.glm}}, but it is pretty slow.
 In this case you could specify 'default' for speed.}
 
 \item{save_to_file}{A character, containing file name or path}
 }
 \value{
-If detail_show is TRUE, the return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame. Otherwise, only return concentrated result in a  data.frame.
+If detail_show is TRUE, the return result is a list including two components, the first part is a detailed analysis result, the second part is a concentrated result in a  data.frame. Otherwise, only return concentrated result in a  data.frame.
 }
 \description{
 Build general linear model, generalized linear model, cox regression model with only one dependent variables.
 }
 \examples{
-reg_glm<-reg(data = diabetes, x = c(1:4, 6), y = 5, factor = c(1, 3, 4), model = 'glm')
+reg_glm<-reg(data = diabetes, x = c(1:4, 6), y = 5, factors = c(1, 3, 4), model = 'glm')
 ##  subset result like a list
 reg_glm$detail
 reg_glm$dataframe
 reg_glm[2]
 reg_glm$detail[2:4]
 ##  other methods
-fit<-reg(data = diabetes, x = c(1, 3:6), y = "age", factor = c(1, 3, 4), model = 'lm')
+fit<-reg(data = diabetes, x = c(1, 3:6), y = "age", factors = c(1, 3, 4), model = 'lm')
 fit<-reg(data = diabetes, x = c( "sex","education","BMI"), y = "diabetes",
-time ="age", factor = c("sex","smoking","education"), model = 'coxph')
+time ="age", factors = c("sex","smoking","education"), model = 'coxph')
 }

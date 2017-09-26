@@ -5,7 +5,7 @@
 \title{Build regression models}
 \usage{
 reg(data = NULL, x = NULL, y = NULL, group = NULL, cov = NULL,
-  factor = NULL, model = NULL, time = NULL, cov_show = FALSE,
+  factors = NULL, model = NULL, time = NULL, cov_show = FALSE,
   group_combine = FALSE)
 }
 \arguments{
@@ -19,7 +19,7 @@ reg(data = NULL, x = NULL, y = NULL, group = NULL, cov = NULL,
 
 \item{cov}{Integer column indices or name of covariate variables}
 
-\item{factor}{Integer column indices or names of variables to be treated as factor}
+\item{factors}{Integer column indices or names of variables to be treated as factor}
 
 \item{model}{regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details}
 
@@ -27,16 +27,11 @@ reg(data = NULL, x = NULL, y = NULL, group = NULL, cov = NULL,
 
 \item{cov_show}{A logical, whether to create covariates result, default FALSE}
 
-\item{group_combine}{A logical, subgroup analysis for group variables combination or each group variables. The default is FALSE (subgroup analysis for each group variable)}
+\item{group_combine}{A logical, subgroup analysis for combination of group variables or each group variables. The default is FALSE (subgroup analysis for each group variable)}
 }
 \value{
-The return result is a list including two componets, the first part is a detailed anaysis result, the second part is a concentrated result in a  data.frame
+The return result is a concentrated result in a  data.frame.
 }
 \description{
 Build general linear model, generalized linear model, cox regression model with one or more dependent variables. Allow regression based on subgroup variables.
-}
-\examples{
-reg_glm<-reg_y(data = diabetes, x = c(1:4, 6), y =c("diabetes","C2rs9332739","CFBrs641153") , factor = c(1, 3, 4), model = 'glm')
-##  subset result like a list
-reg_glm$dataframe
 }
