@@ -4,7 +4,9 @@
 
 #' @param data A data.frame
 #' @param variables  Column indices or names of the variables in the dataset to display, the default columns are all the variables
-#' @param group Column indices or names of the subgroup variables.
+#' @param group Column indices or names of the first subgroup variables. Must provide.
+#' @param super_group Column indices or names of the further subgroup variables.
+#' @param group_combine A logical, subgroup analysis for combination of group variables or each group variables. The default is FALSE (subgroup analysis for each group variable)
 #' @param mean_or_median A character to specify mean or median to used for continuous variables, either "mean" or "median". The default is "mean"
 #' @param useNA Whether to include NA values in the table, see \code{\link{table}} for more details
 #' @param table_margin Index of generate margin for, see \code{\link{prop.table}} for more details
@@ -19,13 +21,23 @@
 #' @examples
 #' data(diabetes)
 #' head(diabetes)
-#' display_table(diabetes, variables =c(1:4,6:10),group="diabetes")
+#' result_1<-diabetes %>%
+#'  group_by(sex) %>%
+#'  do(display_table(data=.,variables=c("age","smoking","education"),group="CFHrs2230199")) %>%
+#'  ungroup()
+#' result_2<-display_table_group(data=diabetes,variables=c("age","smoking","education"),group="CFHrs2230199",super_group = "sex")
+#' identical(result,result1)
+#'
+#' result_3<-display_table_group(data=diabetes,variables=c("age","education"),group=c("smoking"),super_group = c("CFHrs2230199","sex"))
+#' result_4<-display_table_group(data=diabetes,variables=c("age","education"),group=c("smoking"),super_group = c("CFHrs2230199","sex"),group_combine=TRUE)
+
 
 
 
 display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_median="mean",addNA = TRUE,table_margin=2, discrete_limit = 10, exclude_discrete=TRUE, save_to_file=NULL,normtest = NULL) {
 
-   if(!is.data.frame(data)) {
+
+  if(!is.data.frame(data)) {
     tryCatch( {
       data<-as.data.frame(data,stringsAsFactors = FALSE)
     }, error = function(e) stop("`data` is not a data.frame.", call. = FALSE)
@@ -39,7 +51,7 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
     if (!is.character(group)) group<-names(data)[group]
 
     data<-filter(data,!is.na(!!sym(group)))
-
+    n_group<-NROW(unique(data[,group]))
     ## data[,group]<-as.factor(data[,group])
 
     if (any(group %in% variables )) {
@@ -49,9 +61,7 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
     }
 
     result <- vector(mode = "list", length = length(variables ))
-    n_group<-length(unique(data[,group]))
-    group_value<-data[,group]
-    group_name<-group
+
 
 
     ## functions used in display
@@ -103,9 +113,9 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
       mean_sd_2<-result_2[c("mean_sd","NA_"),]
       median_IQR_2<-result_2[c("median_IQR","NA_"),]
 
-      mean_sd<-cbind(c("mean ± sd","NA"),mean_sd_2,mean_sd_1)
+      mean_sd<-cbind(c("mean ± sd","NA"),mean_sd_2,mean_sd_1,stringsAsFactors=FALSE)
       names(mean_sd)<-c("level",paste0("V",1:( n_group+1)))
-      median_IQR<-cbind(c("median (Q1,Q3)","NA"),median_IQR_2,median_IQR_1)
+      median_IQR<-cbind(c("median (Q1,Q3)","NA"),median_IQR_2,median_IQR_1,stringsAsFactors=FALSE)
       names(median_IQR)<-c("level",paste0("V",1:( n_group+1)))
 
       if(mean_or_median_=="mean") {
@@ -152,34 +162,35 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
 
     ### for discrete variables
     discrete_test<-function (data=data,x=x,group=group,table_margin_=table_margin) {
-      var_tab<-table(data[,x],data[,group])
+      #var_tab<-table(data[,x],data[,group])
+      var_tab<-xtabs(as.formula(paste0("~",x,"+",group)),data=data)
       fit<-suppressWarnings(chisq.test(var_tab))
       p.chisq<-format_sprint(fit$p.value)
       if(any(fit$expected<5)) {
         p.fisher<-fisher.test(var_tab)$p.value
         p.fisher<-format_sprint(p.fisher)
       } else p.fisher<-NA
-      print(var_tab)
+      #print(var_tab)
       var_prop=round(100*prop.table(var_tab,margin=table_margin_),2)
       var_tab=cbind(table(data[,x]),var_tab)
       var_NCOl<-NCOL(var_tab)
       level=row.names(var_tab)
       var_prop=cbind(round(100*prop.table(table(data[,x])),2),var_prop)
-      var_tab=data.frame(matrix(paste(var_tab," (",var_prop,"%)",sep=""),ncol =var_NCOl),stringsAsFactors = FALSE)
+      var_tab=as.data.frame(matrix(paste(var_tab," (",var_prop,"%)",sep=""),ncol =var_NCOl),stringsAsFactors = FALSE)
 
-      if(addNA & any(is.na(data[,x]))) {
-        var_value<-as.character(data[,x])
-        var_value<-ifelse(is.na(var_value),"NA",var_value)
-        var_tab_NA<-table(var_value,data[,group])
-        var_tab_NA<-cbind(table(var_value),var_tab_NA)
+
+      if(addNA) {
+        data[,x]<-ifelse(is.na(unlist(data[,x])),"NA",unlist(data[,x]))
+        var_tab_NA<-xtabs(as.formula(paste0("~",x,"+",group)),data=data)
+        var_tab_NA<-cbind(table(data[,x]),var_tab_NA)
         var_tab_NA<-as.data.frame(var_tab_NA,stringsAsFactors = FALSE)
         names(var_tab_NA)<-names(var_tab)
         var_tab_NA$row_name<-row.names(var_tab_NA)
         var_tab_NA<-var_tab_NA[var_tab_NA$row_name=="NA",1:var_NCOl]
+        if(NROW(var_tab_NA)==0) var_tab_NA<-rep(0,var_NCOl)
         var_tab<-rbind(var_tab,var_tab_NA)
         var_tab<-cbind(level=c(level,"NA"),var_tab,stringsAsFactors=FALSE)
       } else var_tab<-cbind(level=level,var_tab,stringsAsFactors=FALSE)
-
       names(var_tab)[-1]<-c(paste0("V",1:(n_group+1)))
 
       row_fill<-rep("",NROW(var_tab)-1)
@@ -189,11 +200,10 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
     }
 
    for (i in seq_along(variables )) {
-      var_i<- variables [i]
-      var_value<-data[,var_i]
+      var_i<- variables[i]
+      var_value<-unlist(data[,var_i])
 
-      print(var_i)
-      is_discrete_value<-is_discrete(var_i,discrete_limit,exclude_discrete)
+      is_discrete_value<-is_discrete(var_value=var_value,discrete_limit,exclude_discrete)
       if(is.na(is_discrete_value)) {
         warning(paste0("`",var_i,"`"," is verbose. To display it using `exclude_discrete = FALSE` "),call. = FALSE)
       } else if(is_discrete_value) {
@@ -216,13 +226,14 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
         },finally = {result[[i]]<-result_one})
       }
 
-    }
+   }
     result<-as.data.frame(do.call(rbind,result), stringsAsFactors = FALSE)
     row.names(result)<-NULL
     result_name<-as.list(table(data[,group]))
-    names(result)[3]<-paste0("All sample","\n (N=",NROW(data),")")
-    names(result)[4:(3+length(result_name))]<-paste0(group," = ",names(result_name),"\n (N=",result_name,")")
-
+    #names(result)[3]<-paste0("All sample","\n (N=",NROW(data),")")
+    names(result)[3]<-"All sample"
+    #names(result)[4:(3+length(result_name))]<-paste0(group," = ",names(result_name),"\n (N=",result_name,")")
+    names(result)[4:(3+length(result_name))]<-paste0(group," = ",names(result_name))
     if (!addNA) {
       result<-result[result$level!="NA",]
     }
@@ -237,8 +248,8 @@ display_table <- function(data = NULL, variables  = NULL,group=NULL, mean_or_med
 
 
 
-
-display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_group=NULL,group_combine=FALSE, mean_or_median="mean",addNA = TRUE,table_margin=2, discrete_limit = 10, exclude_discrete=TRUE, save_to_file=NULL,normtest = NULL) {
+#'@describeIn display_table Allow more  subgroup analysis
+display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_group=NULL,group_combine=FALSE, mean_or_median="mean",addNA = TRUE,table_margin=2, discrete_limit = 10, exclude_discrete=TRUE, normtest = NULL) {
 
   if(!is.data.frame(data)) {
     tryCatch( {
@@ -270,8 +281,8 @@ display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_
     for (i in seq_along(super_group)) {
       super_group_i <- super_group[i]
       fit<-data %>%
-        group_by(!!sym(super_group_i))  %>%
-        do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, save_to_file=save_to_file,normtest = normtest)) %>%
+        group_by_at(vars(super_group_i))  %>%
+        do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, normtest = normtest)) %>%
         ungroup() %>%
         rename(super_group_level=!!super_group_i)
       result_dataframe[[i]]<-as.data.frame(base::cbind(super_group=super_group_i, fit),stringsAsFactors = FALSE)
@@ -280,8 +291,8 @@ display_table_group <- function(data = NULL, variables  = NULL,group=NULL,super_
 
   } else {
     result<-data %>%
-      group_by(!!sym(super_group)) %>%
-      do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, save_to_file=save_to_file,normtest = normtest)) %>%
+      group_by_at(vars(super_group))  %>%
+      do(display_table(data = ., variables  = variables,group=group, mean_or_median=mean_or_median,addNA = addNA,table_margin=table_margin, discrete_limit = discrete_limit, exclude_discrete=exclude_discrete, normtest = normtest)) %>%
       ungroup()
   }
 

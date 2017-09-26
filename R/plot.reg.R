@@ -105,5 +105,3 @@ utils::globalVariables(c("term", "center", "low", "high", "beyond1", "beyond2"))
 
 
 
-#'@describeIn plot.reg dataframe method for 'reg_y' class
-plot.reg_y <- 1

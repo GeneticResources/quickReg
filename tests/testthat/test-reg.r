@@ -94,8 +94,17 @@ test_that("display_table", {
   dd<-display_table(data=diabetes,variables =c(1:4,6:10),group="diabetes",normtest = "shapiro.test")
   dd<-display_table(data=diabetes,variables =c(1:4,6:10),group="diabetes",normtest = "lillie.test")
 
-  display_table(data=diabetes,variables =c(1:4,6:10),group="diabetes",save_to_file = "test.display.csv")
 
 })
 
-str(data)
+
+test_that("display_table_group", {
+
+  result_1<-display_table_group(data=diabetes,variables=c("age","smoking","education"),group="CFHrs2230199",super_group = "sex")
+
+  result_2<-display_table_group(data=diabetes,variables=c("age","education"),group=c("smoking"),super_group = c("CFHrs2230199","sex"))
+  result_3<-display_table_group(data=diabetes,variables=c("age","education"),group=c("smoking"),super_group = c("CFHrs2230199","sex"),group_combine=TRUE)
+
+
+})
+

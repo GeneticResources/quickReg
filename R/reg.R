@@ -6,7 +6,7 @@
 #' @param x Integer column indices or names of the variables to be included in univariate analysis. If \code{NULL}, the default columns are all the variables except `y`, `time` and `cov`.
 #' @param y Integer column indice or name of dependent variables, integer or character, allow more than one dependent variables
 #' @param group Integer column indice or name of subgroup variables.
-#' @param group_combine A logical, subgroup analysis for group variables combination or each group variables. The default is FALSE (subgroup analysis for each group variable)
+#' @param group_combine A logical, subgroup analysis for combination of group variables or each group variables. The default is FALSE (subgroup analysis for each group variable)
 #' @param cov Integer column indices or name of covariate variables
 #' @param factor Integer column indices or names of variables to be treated as factor
 #' @param model regression model, see \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}} for more details
@@ -68,7 +68,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,group=NULL, cov=NULL, factor = N
     for (i in seq_along(group)) {
       group_i <- group[i]
       fit<-data %>%
-        group_by(!!sym(group_i))  %>%
+        group_by_at(vars(group_i))  %>%
         do(reg_y(data = ., x = x, y = y,cov=cov, factor = factor, model = model,
                time = time, cov_show=cov_show)) %>%
         ungroup() %>%
@@ -79,7 +79,7 @@ reg <- function(data = NULL, x = NULL, y = NULL,group=NULL, cov=NULL, factor = N
 
   } else {
     result<-data %>%
-      group_by(!!sym(group)) %>%
+      group_by_at(vars(group))  %>%
       do(reg_y(data = ., x = x, y = y,cov=cov, factor = factor, model = model, time = time, cov_show=cov_show)) %>%
       ungroup()
   }
