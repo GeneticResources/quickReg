@@ -2,7 +2,7 @@
 % Please edit documentation in R/reg_x.R
 \name{reg_x}
 \alias{reg_x}
-\title{Build regression models only one dependent varibale}
+\title{Build regression models only one dependent variable}
 \usage{
 reg_x(data = NULL, x = NULL, y = NULL, cov = NULL, factors = NULL,
   model = NULL, time = NULL, cov_show = FALSE, detail_show = FALSE,

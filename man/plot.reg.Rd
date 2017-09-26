@@ -6,8 +6,7 @@
 \title{plot the result of regression result}
 \usage{
 \method{plot}{reg}(x, limits = c(NA, NA), sort = "order", title = NULL,
-  remove = TRUE, term = NULL, center = NULL, low = NULL, high = NULL,
-  model = NULL, ...)
+  remove = TRUE, ...)
 
 plot_reg(x, limits = c(NA, NA), sort = "order", title = NULL,
   remove = TRUE, term = NULL, center = NULL, low = NULL, high = NULL,
@@ -24,6 +23,8 @@ plot_reg(x, limits = c(NA, NA), sort = "order", title = NULL,
 
 \item{remove}{A logical, whether to remove infinite and NA value. The default is TRUE}
 
+\item{\dots}{additional arguments. When using your own regression results rather than from 'quickReg', please provide `term`,`center`,`lower`, `high` and `model` for plot.}
+
 \item{term}{A character of x axis variable in plot}
 
 \item{center}{A character of coefficient, OR or HR variable in plot}
@@ -33,8 +34,6 @@ plot_reg(x, limits = c(NA, NA), sort = "order", title = NULL,
 \item{high}{A character of upper confidence interval variable}
 
 \item{model}{A character of model, "lm", "glm" or "coxph"}
-
-\item{\dots}{additional arguments. When using your own regression results rather than from 'quickReg', please provide `term`,`center`,`lower`, `high` and `model` for plot.}
 }
 \description{
 plot coefficients, OR or HR of regression models.

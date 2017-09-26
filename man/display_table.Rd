@@ -43,7 +43,7 @@ display_table_group(data = NULL, variables = NULL, group = NULL,
 \item{group_combine}{A logical, subgroup analysis for combination of group variables or for each group variables. The default is FALSE (subgroup analysis for each group variable)}
 }
 \description{
-Dispaly count, frequency or mean, standard deviation and test of normality, etc.
+Display count, frequency or mean, standard deviation and test of normality, etc.
 }
 \section{Functions}{
 \itemize{

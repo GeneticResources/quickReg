@@ -22,12 +22,7 @@
 #' plot(reg_glm, limits = c(NA, 3))
 #'
 
-plot.reg <- function(x, limits = c(NA, NA), sort = "order", title=NULL,remove=TRUE,term=NULL,center=NULL,low=NULL,high=NULL,model=NULL,...) {
-  if (! "reg" %in% class(x)  ) {
-    if(any(sapply(c(term,center,low,high,model),is.null))) {
-      stop("Not `reg` object, please provide `term`,`center`,`low`, `high` and `model` for plot.", call. = FALSE)
-    }
-  }
+plot.reg <- function(x, limits = c(NA, NA), sort = "order", title=NULL,remove=TRUE,...) {
   stopifnot((is.na(limits[1]) || is.numeric(limits[1])) && (is.na(limits[2]) ||
                                                               is.numeric(limits[2])))
 
@@ -44,13 +39,8 @@ plot.reg <- function(x, limits = c(NA, NA), sort = "order", title=NULL,remove=TR
     data<-na.omit(data)
   }
 
-  if ("reg" %in% class(x)) {
     names(data)[(NCOL(x) - 3):(NCOL(x)-1)] <- c("center", "low","high")
     var_model<-attr(x,"model")
-  } else {
-    data[,c("term","center", "low","high")]<-data[,c(term,center,low,high)]
-    var_model<-model
-  }
 
   if (is.na(limits[1]))
     limits[1] <- min(data$low, na.rm = TRUE)

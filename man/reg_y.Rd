@@ -2,7 +2,7 @@
 % Please edit documentation in R/reg_y.R
 \name{reg_y}
 \alias{reg_y}
-\title{Build regression models with more than one dependent varibale}
+\title{Build regression models with more than one dependent variable}
 \usage{
 reg_y(data = NULL, x = NULL, y = NULL, cov = NULL, factors = NULL,
   model = NULL, time = NULL, cov_show = FALSE)

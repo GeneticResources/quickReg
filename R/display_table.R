@@ -1,6 +1,6 @@
 #' Display a table used in paper
 #'
-#' Dispaly count, frequency or mean, standard deviation and test of normality, etc.
+#' Display count, frequency or mean, standard deviation and test of normality, etc.
 
 #' @param data A data.frame
 #' @param variables  Column indices or names of the variables in the dataset to display, the default columns are all the variables
